@@ -2,6 +2,8 @@
 #include "ARX.h"
 #include "KalmanFilter.h"
 #include <math.h>
+#include <random>
+#include<fstream>
 
 #define TEST_KALMAN 1
 #define DEBUG_KALMAN 1
@@ -21,8 +23,8 @@ double KalmanFilter::next(double output,double input)
   double xe = eq->next(input);
   ////事前誤差共分散行列
   double Pd=0;
-  for (size_t i = 0; i < P.size()-1; i++) {
-    Pd += P[i]*eq->param[i]*eq->param[i];
+  for (size_t i = 0; i < P.size(); i++) {
+    Pd += eq->param[i]*P[i]*eq->param[i];
   }
   //フィルタリングステップ
   ////カルマンゲイン
@@ -33,7 +35,7 @@ double KalmanFilter::next(double output,double input)
   for (size_t i = 0; i < P.size()-1; i++) {
     P[i] = (1-G)*Pd;
   }
-  cout << "G=" << G << endl;
+  cout << "G=" << G << ",P=" << P[0] << endl;
 
   return out;
 }
@@ -41,23 +43,38 @@ double KalmanFilter::next(double output,double input)
 //// TEST
 #if 1
 int main(int argc, char const *argv[]) {
+  ofstream ofs("Test.csv"); //ファイル出力ストリーム
+
+  //フィルター用のモデル
   StateEq *s;
-  ARX arx(5);
-  std::vector<double> a = {1.0, 0.5,  0.01, 0.001, 0.0001};
-  std::vector<double> b = {2.0, 0.05,  0.05, 0.005, 0.0001};
-  arx.setParam(a,b);
-  s=&arx;
+  ARX *arx = new ARX(5);
+  std::vector<double> a = {0.01, 0.5,  0.01, 0.1, 0.01};
+  std::vector<double> b = {0.01, 0.05,  0.05, 0.05, 0.01};
+  arx->setParam(a,b);
+  s=arx;
 
   KalmanFilter kf(s, 0.01, 0.001);
 
-  double o;
+  //計測対象のモデル
+  ARX arx_t(5);
+  std::vector<double> at = {0.03, 0.2,  0.01, 0.15, 0.015};
+  std::vector<double> bt = {0.05, 0.02,  0.02, 0.01, 0.01};
+  arx_t.setParam(at,bt);
+
+  double est,ot,model;
   double input,obs;
-  for (size_t i = 0; i < 100; i++)
+  for (size_t i = 0; i < 300; i++)
   {
-    input = sin(M_PI*0.1*i*0.01);
-    obs = cos(input);
-    o = kf.next(input,obs);
-    cout << o << endl;
+    input = 10*sin(M_PI*i*0.05);
+    ot = arx_t.next(input);
+    obs = ot + rand()*0.0001;
+    est = kf.next(obs,input);
+    model = arx->next(input);
+
+    cout << est << endl;
+    ofs << est << ',' << obs << ',' << ot << ',' << input;
+    ofs << ',' << model;
+    ofs << endl;
   }
 
   return 0;

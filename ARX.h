@@ -21,10 +21,13 @@ public:
   {
     a=aa;
     b=bb;
-    for (size_t i = 0; i < param.size()-1; i++) {
+    // param[0]=a[0];
+    for (size_t i = 0; i < param.size(); i++) {
       if(i<aa.size()){param[i]=aa[i];}
       else{param[i]=bb[i];}
     }
+
+    // cout << "param=" << param[0] << endl;
   }
 
 private:

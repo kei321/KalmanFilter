@@ -9,7 +9,8 @@ ARX::ARX(int size) : StateEq()
   a.assign(size,0);
   b.assign(size,0);
 
-  param.assign(size*2,0);
+  int param_size = 1;//a.size()
+  param.assign(param_size,0);
 }
 
 ARX::~ARX(){
