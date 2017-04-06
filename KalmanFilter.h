@@ -14,6 +14,8 @@ public:
   }
 private:
   std::vector<double> P;
+  std::vector<double> Pd;
+  std::vector<double> buff;
   double G;
   double omega;
   StateEq *eq;

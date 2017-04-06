@@ -1,3 +1,7 @@
+/*
+ARX:差分方程式による離散系の伝達関数表現
+*/
+
 #ifndef ARXMODEL_H_
 #define ARXMODEL_H_
 
@@ -22,10 +26,10 @@ public:
     a=aa;
     b=bb;
     // param[0]=a[0];
-    for (size_t i = 0; i < param.size(); i++) {
-      if(i<aa.size()){param[i]=aa[i];}
-      else{param[i]=bb[i];}
-    }
+    // for (size_t i = 0; i < param.size(); i++) {
+    //   if(i<aa.size()){param[i]=aa[i];}
+    //   else{param[i]=bb[i];}
+    // }
 
     // cout << "param=" << param[0] << endl;
   }
