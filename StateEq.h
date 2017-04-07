@@ -12,6 +12,7 @@ public:
   vector< vector<double> > A;
   vector<double> B;
   vector<double> C;
+  vector<double> x;
 
   StateEq(){};
   virtual double next(double input){};

@@ -14,7 +14,6 @@ class StateSpace : public StateEq
 {
 public:
   vector<double> u;
-  vector<double> x;
   vector<double> xb;  //next step
   vector<double> y;
 

@@ -12,9 +12,14 @@
 KalmanFilter::KalmanFilter(StateEq *e,double o, double p):
 eq(e),G(0),omega(o)
 {
-  buff.assign(eq->A.size(),0);
-  P.assign(eq->A.size(),p);
-  Pd.assign(eq->A.size(),0);
+  buff = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
+  P = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
+  Pd = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
+  G.assign(eq->A.size(),p);
+
+  for (size_t i = 0; i < P.size(); i++) {
+    P[i][i] = p;
+  }
 }
 
 double KalmanFilter::next(double output,double input)
@@ -26,29 +31,52 @@ double KalmanFilter::next(double output,double input)
   double xe = eq->next(input);
   ////事前誤差共分散行列
   for (size_t i = 0; i < P.size(); i++) {
-    buff[i] = P[i]*eq->A[0][i];
-    cout << "buff=" << buff[i] << endl;
+    for (size_t j = 0; j < P.size(); j++) {
+      buff[i][j] = P[i][i]*eq->A[j][i]; //Aは転地
+    }
   }
   for (size_t i = 0; i < eq->A[0].size(); i++) {
     for (size_t j = 0; j < eq->A.size(); j++) {
-      Pd[i] += eq->A[i][j]*buff[j];
+    Pd[i][j] = 0;
+      for (size_t k = 0; k < eq->A.size(); k++) {
+        Pd[i][j] += eq->A[i][k]*buff[k][j];
+      }
     }
-    cout << "Pd=" << Pd[i] << endl;
   }
   //フィルタリングステップ
   ////カルマンゲイン
   double Pb=0;
   for (size_t i = 0; i < P.size(); i++) {
-    Pb += P[i]*eq->C[i];
+    buff[i][0]=0;
+    for (size_t j = 0; j < P.size(); j++) {
+      buff[i][0] += Pd[i][j]*eq->C[j];
+    }
+    Pb += buff[i][0]*eq->C[i];
   }
-  G = Pb/(Pb+omega*omega);
-  out = xe + G*(output-xe);
+  for (size_t i = 0; i < G.size(); i++) {
+    G[i] = buff[i][0]/(Pb+omega*omega);
+  }
+  out = eq->x[0] + G[0]*(output - eq->x[0]);
 
   ////事後誤差共分散行列
-  for (size_t i = 0; i < P.size(); i++) {
-    P[i] = (1-G)*Pd[i];
+  for (size_t i = 0; i < G.size(); i++) {
+    for (size_t j = 0; j < eq->C.size(); j++) {
+      buff[i][j] = G[i]*eq->C[j];
+      if(i==j){buff[i][j] = 1-buff[i][j];}
+    }
   }
-  cout << "G=" << G << endl;
+  for (size_t i = 0; i < P.size(); i++) {
+    for (size_t j = 0; j < P.size(); j++) {
+    P[i][j] = 0;
+      for (size_t k = 0; k < P.size(); k++) {
+        P[i][j] += buff[i][k]*Pd[k][j];
+      }
+    cout << P[i][j] << ",";
+    }
+    cout << endl;
+  }
+  cout << "eq->x[0]=" << eq->x[0] << ",est=" << out  << endl;
+  cout << "G=" << G[0]<< ","  << G[1] << ",P11=" << P[0][0]<< endl;
 
   return out;
 }
@@ -70,11 +98,11 @@ int main(int argc, char const *argv[]) {
   ss->A = a; ss->B = b; ss->C = c; ss->x=x;
 
   s = ss;
-  KalmanFilter kf(s, 0.001, 2000);
+  KalmanFilter kf(s, 0.1, 1000000);
 
   //計測対象のモデル
   StateSpace ss_t(2,0.1);;
-  k=0.2;m=0.55;d=0.1;
+  k=0.2;m=0.5;d=0.1;
   vector< vector<double> > at = {{0,1},{-k/m,-d/m}};
   vector<double> bt = {0,1/m};
   vector<double> ct = {1,0};
@@ -100,7 +128,7 @@ int main(int argc, char const *argv[]) {
 */
   double est,ot,model;
   double input,obs;
-  int i_max = 500;
+  int i_max = 50;
   for (size_t i = 0; i < i_max; i++)
   {
     // input = 10*sin(M_PI*i*0.05);
@@ -115,7 +143,7 @@ int main(int argc, char const *argv[]) {
     cout << est << endl;
     ofs << input << ',' ;
     ofs << est << ',' << obs << ',' << ot << ',';
-    ofs << model<< ',' ;
+    ofs << kf.G[0]<< ',' << kf.G[1]<< ',' ;
     ofs << endl;
   }
 

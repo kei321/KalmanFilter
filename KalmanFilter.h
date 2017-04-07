@@ -10,13 +10,14 @@ public:
   double next(double output,double input);
   void reset()
   {
-    G=0;omega=0;
+    omega=0;
   }
+  vector<double> G;
 private:
-  std::vector<double> P;
-  std::vector<double> Pd;
-  std::vector<double> buff;
-  double G;
+  vector< vector<double> > P;
+  vector< vector<double> > Pd;
+  vector< vector<double> > buff;
+  vector< vector<double> > buff_p;
   double omega;
   StateEq *eq;
 };
