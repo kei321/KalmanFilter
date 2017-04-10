@@ -37,11 +37,17 @@ double KalmanFilter::next(double output,double input)
   }
   for (size_t i = 0; i < eq->A[0].size(); i++) {
     for (size_t j = 0; j < eq->A.size(); j++) {
-    Pd[i][j] = 0;
+      Pd[i][j] = 0;
       for (size_t k = 0; k < eq->A.size(); k++) {
         Pd[i][j] += eq->A[i][k]*buff[k][j];
       }
+      #if DEBUG_KALMAN
+      cout << Pd[i][j] << ",";
+      #endif
     }
+    #if DEBUG_KALMAN
+    cout << endl;
+    #endif
   }
   //フィルタリングステップ
   ////カルマンゲイン
@@ -67,22 +73,28 @@ double KalmanFilter::next(double output,double input)
   }
   for (size_t i = 0; i < P.size(); i++) {
     for (size_t j = 0; j < P.size(); j++) {
-    P[i][j] = 0;
+      P[i][j] = 0;
       for (size_t k = 0; k < P.size(); k++) {
         P[i][j] += buff[i][k]*Pd[k][j];
       }
-    cout << P[i][j] << ",";
+      #if DEBUG_KALMAN
+      cout << P[i][j] << ",";
+      #endif
     }
+    #if DEBUG_KALMAN
     cout << endl;
+    #endif
   }
+  #if DEBUG_KALMAN
   cout << "eq->x[0]=" << eq->x[0] << ",est=" << out  << endl;
   cout << "G=" << G[0]<< ","  << G[1] << ",P11=" << P[0][0]<< endl;
+  #endif
 
   return out;
 }
 
 //// TEST
-#if 1
+#if 0
 int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム
 
@@ -91,20 +103,20 @@ int main(int argc, char const *argv[]) {
   StateSpace *ss;
   double k=0.2,m=0.5,d=0.1;
   vector< vector<double> > a = {{0,1},{-k/m,-d/m}};
-  vector<double> b = {0,1/m};
+  vector< vector<double> > b = {{0},{1/m}};
   vector<double> c = {1,0};
   vector<double> x = {1,0};
   ss = new StateSpace(2,0.1);
   ss->A = a; ss->B = b; ss->C = c; ss->x=x;
 
   s = ss;
-  KalmanFilter kf(s, 0.1, 1000000);
+  KalmanFilter kf(s, 100, 1000);
 
   //計測対象のモデル
   StateSpace ss_t(2,0.1);;
   k=0.2;m=0.5;d=0.1;
   vector< vector<double> > at = {{0,1},{-k/m,-d/m}};
-  vector<double> bt = {0,1/m};
+  vector< vector<double> > bt = {{0},{1/m}};
   vector<double> ct = {1,0};
   vector<double> xt = {1,0};
   ss_t.A = at; ss_t.B = bt; ss_t.C = ct; ss_t.x=xt;
@@ -128,7 +140,7 @@ int main(int argc, char const *argv[]) {
 */
   double est,ot,model;
   double input,obs;
-  int i_max = 50;
+  int i_max = 200;
   for (size_t i = 0; i < i_max; i++)
   {
     // input = 10*sin(M_PI*i*0.05);

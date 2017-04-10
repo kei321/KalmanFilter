@@ -13,13 +13,13 @@ public:
     omega=0;
   }
   vector<double> G;
+  StateEq *eq;
 private:
   vector< vector<double> > P;
   vector< vector<double> > Pd;
   vector< vector<double> > buff;
   vector< vector<double> > buff_p;
   double omega;
-  StateEq *eq;
 };
 
 #endif

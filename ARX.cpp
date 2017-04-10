@@ -9,7 +9,7 @@ ARX::ARX(int size) : StateEq()
   // a.assign(size,0);
   // b.assign(size,0);
   A = vector< vector<double> >(1,  vector<double>(size,0) );
-  B.assign(size,0);
+  B = vector< vector<double> >(1,  vector<double>(size,0) );
   C.assign(size,0);
 }
 
@@ -21,7 +21,7 @@ double ARX::next(double input)
   double output=0;
   for(int i=0;i<u.size();i++)
   {
-    output += A[0][i]*y[i] + B[i]*u[i];
+    output += A[0][i]*y[i] + B[i][0]*u[i];
     #if DEBUG
     cout << y[i] << ",";
     #endif

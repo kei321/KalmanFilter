@@ -3,7 +3,7 @@ StateSpace:状態方程式による離散系の伝達関数表現
 */
 #include "StateSpace.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 StateSpace::StateSpace(int size, double deltaT) : StateEq()
 {
@@ -12,7 +12,7 @@ StateSpace::StateSpace(int size, double deltaT) : StateEq()
   xb.assign(size,0);
   y.assign(size,0);
   A = vector< vector<double> >(size,  vector<double>(size,0) );
-  B.assign(size,0);
+  B = vector< vector<double> >(size-1,  vector<double>(size,0) );
   C.assign(size,0);
 
   // int param_size = A.size()
@@ -29,7 +29,7 @@ double StateSpace::next(double input)
   double output=0;
   for (size_t i = 0; i < A.size(); i++) {
     for (size_t j = 0; j < A[0].size(); j++) {
-      xb[i] += A[i][j]*x[j] + B[j]*input;
+      xb[i] += A[i][j]*x[j] + B[i][j]*input;
     }
     xb[i] = x[i] + xb[i]*dt;
     #if DEBUG
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
   //バネマス系
   double k=0.2,m=0.5,d=0.1;
   vector< vector<double> > a = {{0,1},{-k/m,-d/m}};
-  vector<double> b = {0,1/m};
+  vector< vector<double> > b = {{0},{1/m}};
   vector<double> c = {1,0};
   vector<double> x = {1,0};
 

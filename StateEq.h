@@ -10,7 +10,7 @@ class StateEq
 {
 public:
   vector< vector<double> > A;
-  vector<double> B;
+  vector< vector<double> > B;
   vector<double> C;
   vector<double> x;
 
