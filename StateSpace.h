@@ -6,34 +6,29 @@ StateSpace:状態方程式による離散系の伝達関数表現
 
 #include <iostream>
 #include <vector>
-#include "StateEq.h"
+#include "Eigen/Core"
+#include "Eigen/LU"
+
+using namespace Eigen;
 
 using namespace std;
 
-class StateSpace : public StateEq
+class StateSpace
 {
 public:
-  vector<double> u;
-  vector<double> xb;  //next step
-  vector<double> y;
 
-  StateSpace(int size, double deltaT);
+  MatrixXf A;
+  MatrixXf B;
+  MatrixXf C;
+  MatrixXf X;
+  MatrixXf U;
+  MatrixXf Y;
+  StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit,  double deltaT);
   virtual ~StateSpace();
   double next(double input);
-  // void setParam(std::vector<double> aa, std::vector<double> bb)
-  // {
-  //   a=aa;
-  //   b=bb;
-  //   // param[0]=a[0];
-  //   for (size_t i = 0; i < param.size(); i++) {
-  //     if(i<aa.size()){param[i]=aa[i];}
-  //     else{param[i]=bb[i];}
-  //   }
-  //
-  //   // cout << "param=" << param[0] << endl;
-  // }
 
 private:
+  MatrixXf Xn;
   double dt;
 };
 

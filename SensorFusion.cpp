@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
   double est,ot,model;
   double input,obs;
   double e1,e2;
-  int i_max = 100;
+  int i_max = 10;
   for (size_t i = 0; i < i_max; i++)
   {
     // input = 10*sin(M_PI*i*0.05);

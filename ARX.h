@@ -7,12 +7,15 @@ ARX:差分方程式による離散系の伝達関数表現
 
 #include <iostream>
 #include <vector>
-#include "StateEq.h"
 using namespace std;
 
-class ARX : public StateEq
+class ARX
 {
 public:
+  vector<double> A;
+  vector<double> B;
+  vector<double> C;
+  vector<double> x;
   std::vector<double> u;
   std::vector<double> y;
   std::vector<double> a;
@@ -21,17 +24,13 @@ public:
   ARX(int size);
   virtual ~ARX();
   double next(double input);
-  void setParam(std::vector<double> aa, std::vector<double> bb)
+  void shift(std::vector<double> &v, double insert)
   {
-    a=aa;
-    b=bb;
-    // param[0]=a[0];
-    // for (size_t i = 0; i < param.size(); i++) {
-    //   if(i<aa.size()){param[i]=aa[i];}
-    //   else{param[i]=bb[i];}
-    // }
-
-    // cout << "param=" << param[0] << endl;
+      for(int i=v.size()-1;i>0;i--)
+      {
+        v[i]=v[i-1];
+      }
+      v[0]=insert;
   }
 
 private:

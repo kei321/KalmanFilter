@@ -5,18 +5,20 @@ StateSpace:状態方程式による離散系の伝達関数表現
 
 #define DEBUG 1
 
-StateSpace::StateSpace(int size, double deltaT) : StateEq()
+StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, double deltaT)
 {
-  u.assign(size,0);
-  x.assign(size,0);
-  xb.assign(size,0);
-  y.assign(size,0);
-  A = vector< vector<double> >(size,  vector<double>(size,0) );
-  B = vector< vector<double> >(size,  vector<double>(size-1,0) );
-  C.assign(size,0);
+  A = AA;
+  B = BB;
+  C = CC;
+  X = Xinit;
+  Xn = MatrixXf::Zero(X.rows(),1);
+  Y = MatrixXf::Zero(C.rows(),1);
 
-  // int param_size = A.size()
-  // param.assign(param_size,0);
+#if DEBUG
+  cout << "X:rows" << X.rows() << ",cols" << X.cols() << endl;
+  cout << "A:rows" << A.rows() << ",cols"  << A.cols() << endl;
+  cout << "B:rows" << B.rows() << ",cols"  << B.cols() << endl;
+#endif
 
   dt = deltaT;
 }
@@ -27,26 +29,12 @@ StateSpace::~StateSpace(){
 double StateSpace::next(double input)
 {
   double output=0;
-  for (size_t i = 0; i < A.size(); i++) {
-    for (size_t j = 0; j < A[0].size(); j++) {
-      xb[i] += A[i][j]*x[j];
-    }
-    for (size_t j = 0; j < B[0].size(); j++) {
-      xb[i] += B[i][j]*input;
-    }
-    xb[i] = x[i] + xb[i]*dt;
-    #if DEBUG
-    cout << "x" << i << "=" << xb[i] << ",";
-    #endif
-  }
-  #if DEBUG
-  cout << endl;
-  #endif
-  x = xb;
-  for (size_t i = 0; i < C.size(); i++) {
-    output += C[i]*x[i];
-    xb[i] = 0;
-  }
+  //
+  Xn = A*X + B*input;
+  X = X + Xn * dt;  //オイラー法
+  Y = X*C;
+  output = Y(0,0);
+
   return output;
 }
 
@@ -56,20 +44,25 @@ int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム
   //バネマス系
   double k=0.2,m=0.5,d=0.1;
-  vector< vector<double> > a = {{0,1},{-k/m,-d/m}};
-  vector< vector<double> > b = {{0},{1/m}};
-  vector<double> c = {1,0};
-  vector<double> x = {1,0};
+  MatrixXf A = MatrixXf::Zero(2,2);
+  MatrixXf B = MatrixXf::Zero(2,1);
+  MatrixXf C = MatrixXf::Zero(1,2);
+  MatrixXf X = MatrixXf::Zero(2,1);
+  A <<  0,    1,  \
+        -k/m, -d/m;
+  B <<  0,
+        1/m;
+  C <<  1,    0;
+  X <<  0.1,  0;
 
-  StateSpace ss(2,0.1);
-  ss.A = a;ss.B = b;ss.C = c;ss.x=x;
+  StateSpace ss(A,B,C,X,0.1);
 
-  double output=ss.x[1],input=0;
+  double output=0,input=0;
   for (size_t i = 0; i < 100; i++) {
-    // input = i < 50 ? 1 : 0;
+    input = i > 50 ? 0.1 : 0;
     output = ss.next(input);
-
-    cout << endl;
+    //
+    cout << output << endl;
     ofs << output << ',' << input;
     ofs << endl;
   }

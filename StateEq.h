@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <vector>
+#include "Eigen/Core"
 
+using namespace Eigen;
 using namespace std;
 
 class StateEq
@@ -13,6 +15,11 @@ public:
   vector< vector<double> > B;
   vector<double> C;
   vector<double> x;
+
+  MatrixXf AA;
+  MatrixXf BB;
+  MatrixXf CC;
+  MatrixXf X;
 
   StateEq(){};
   virtual double next(double input){};

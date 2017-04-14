@@ -1,26 +1,26 @@
 #ifndef KALMANFILTER_H_
 #define KALMANFILTER_H_
 
-#include "StateEq.h"
+#include "StateSpace.h"
 
 class KalmanFilter
 {
 public:
-  KalmanFilter(StateEq *e,double o, double p, vector<double> q);
+  KalmanFilter(StateSpace *e, MatrixXf P_, MatrixXf Q_, double R_);
   double next(double output,double input);
   void reset()
   {
-    omega=0;
   }
-  vector<double> G;
-  StateEq *eq;
+  StateSpace *eq;
+
+  MatrixXf Xnew;
+  MatrixXf G;
 private:
-  vector< vector<double> > Q;
-  vector< vector<double> > P;
-  vector< vector<double> > Pd;
-  vector< vector<double> > buff;
-  vector< vector<double> > buff_p;
-  double omega;
+  MatrixXf P;
+  MatrixXf Pm;
+  MatrixXf Q;
+  MatrixXf Buff;
+  double R;
 };
 
 #endif
