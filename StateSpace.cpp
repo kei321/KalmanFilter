@@ -12,7 +12,7 @@ StateSpace::StateSpace(int size, double deltaT) : StateEq()
   xb.assign(size,0);
   y.assign(size,0);
   A = vector< vector<double> >(size,  vector<double>(size,0) );
-  B = vector< vector<double> >(size-1,  vector<double>(size,0) );
+  B = vector< vector<double> >(size,  vector<double>(size-1,0) );
   C.assign(size,0);
 
   // int param_size = A.size()
@@ -29,13 +29,19 @@ double StateSpace::next(double input)
   double output=0;
   for (size_t i = 0; i < A.size(); i++) {
     for (size_t j = 0; j < A[0].size(); j++) {
-      xb[i] += A[i][j]*x[j] + B[i][j]*input;
+      xb[i] += A[i][j]*x[j];
+    }
+    for (size_t j = 0; j < B[0].size(); j++) {
+      xb[i] += B[i][j]*input;
     }
     xb[i] = x[i] + xb[i]*dt;
     #if DEBUG
-    cout << xb[i] << ",";
+    cout << "x" << i << "=" << xb[i] << ",";
     #endif
   }
+  #if DEBUG
+  cout << endl;
+  #endif
   x = xb;
   for (size_t i = 0; i < C.size(); i++) {
     output += C[i]*x[i];

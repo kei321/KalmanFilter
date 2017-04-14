@@ -6,19 +6,22 @@
 #include <random>
 #include<fstream>
 
-#define TEST_KALMAN 1
+#define TEST_KALMAN 0
 #define DEBUG_KALMAN 1
 
-KalmanFilter::KalmanFilter(StateEq *e,double o, double p):
+KalmanFilter::KalmanFilter(StateEq *e,double o, double p, vector<double> q):
 eq(e),G(0),omega(o)
 {
   buff = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
+  buff_p = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
   P = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
   Pd = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
+  Q = vector< vector<double> >(eq->A.size(),  vector<double>(eq->A.size(),0) );
   G.assign(eq->A.size(),p);
 
   for (size_t i = 0; i < P.size(); i++) {
     P[i][i] = p;
+    Q[i][i] = q[i];
   }
 }
 
@@ -35,11 +38,19 @@ double KalmanFilter::next(double output,double input)
       buff[i][j] = P[i][i]*eq->A[j][i]; //Aは転地
     }
   }
+  for (size_t i = 0; i < eq->B[0].size(); i++) {
+    for (size_t j = 0; j < eq->B.size(); j++) {
+      buff_p[i][j] = Q[i][i]*eq->B[j][i]; //Aは転地
+    }
+  }
   for (size_t i = 0; i < eq->A[0].size(); i++) {
     for (size_t j = 0; j < eq->A.size(); j++) {
       Pd[i][j] = 0;
       for (size_t k = 0; k < eq->A.size(); k++) {
         Pd[i][j] += eq->A[i][k]*buff[k][j];
+      }
+      for (size_t k = 0; k < eq->B[0].size(); k++) {
+        Pd[i][j] += eq->B[i][k]*buff_p[k][j];
       }
       #if DEBUG_KALMAN
       cout << Pd[i][j] << ",";
@@ -61,8 +72,9 @@ double KalmanFilter::next(double output,double input)
   }
   for (size_t i = 0; i < G.size(); i++) {
     G[i] = buff[i][0]/(Pb+omega*omega);
+    eq->x[i] += G[i]*(output - eq->x[i]);
   }
-  out = eq->x[0] + G[0]*(output - eq->x[0]);
+  out = eq->x[0];
 
   ////事後誤差共分散行列
   for (size_t i = 0; i < G.size(); i++) {
@@ -94,7 +106,7 @@ double KalmanFilter::next(double output,double input)
 }
 
 //// TEST
-#if 0
+#if TEST_KALMAN
 int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム
 
@@ -110,7 +122,7 @@ int main(int argc, char const *argv[]) {
   ss->A = a; ss->B = b; ss->C = c; ss->x=x;
 
   s = ss;
-  KalmanFilter kf(s, 100, 1000);
+  KalmanFilter kf(s, 10, 1000,5);
 
   //計測対象のモデル
   StateSpace ss_t(2,0.1);;

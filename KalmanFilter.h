@@ -6,7 +6,7 @@
 class KalmanFilter
 {
 public:
-  KalmanFilter(StateEq *e,double o, double p);
+  KalmanFilter(StateEq *e,double o, double p, vector<double> q);
   double next(double output,double input);
   void reset()
   {
@@ -15,6 +15,7 @@ public:
   vector<double> G;
   StateEq *eq;
 private:
+  vector< vector<double> > Q;
   vector< vector<double> > P;
   vector< vector<double> > Pd;
   vector< vector<double> > buff;

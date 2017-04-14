@@ -16,15 +16,16 @@ int main(int argc, char const *argv[]) {
   StateEq *s;
   StateSpace *ss;
   double aa=0.75;
-  vector< vector<double> > a = {{aa,0,0},{0,1,0},{0,0,0}};
-  vector< vector<double> > b = {{1-aa,0},{0,0},{0,1}};
+  vector< vector<double> > a = {{1,0,0},{0,1,0},{0,0,0}};
+  vector< vector<double> > b = {{1,0},{0,0},{0,1}};
   vector<double> c = {1,1,-1};
-  vector<double> x = {10,30,20};
+  vector<double> x = {0,1,2};
+  vector<double> Q = {5,2000};
   ss = new StateSpace(3,0.1);
   ss->A = a; ss->B = b; ss->C = c; ss->x=x;
 
   s = ss;
-  KalmanFilter kf(s, 0.01, 100);
+  KalmanFilter kf(s, 0.0000000001, 10000000, Q);
 
   //計測対象のモデル
   StateSpace ss_t(2,0.1);;
@@ -47,12 +48,12 @@ int main(int argc, char const *argv[]) {
 
     ot = ss_t.next(input);
     obs = ot + (-0.5 + rand())*0.00005;
-    kf.next(obs,0);
+    kf.next(obs - ot,0);
 
     e1 = kf.eq->x[0] + kf.eq->x[1];
     e2 = kf.eq->x[2];
 
-    est = obs + e1;
+    est = e1;
 
     cout << est << endl;
     ofs << input << ',' ;
