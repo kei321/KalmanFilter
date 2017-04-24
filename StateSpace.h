@@ -26,7 +26,7 @@ public:
   double dt;
   StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit,  double deltaT);
   virtual ~StateSpace();
-  double next(double input);
+  double next(MatrixXf input);
 
 private:
   MatrixXf Xn;

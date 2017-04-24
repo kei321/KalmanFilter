@@ -28,7 +28,7 @@ StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, do
 StateSpace::~StateSpace(){
 }
 
-double StateSpace::next(double input)
+double StateSpace::next(MatrixXf input)
 {
   double output=0;
   //

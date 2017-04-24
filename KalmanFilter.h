@@ -7,7 +7,7 @@ class KalmanFilter
 {
 public:
   KalmanFilter(StateSpace *e, MatrixXf P_, MatrixXf Q_, double R_);
-  double next(double output,double input);
+  double next(double output,MatrixXf input);
   void reset()
   {
   }
