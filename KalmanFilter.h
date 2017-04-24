@@ -18,6 +18,7 @@ public:
 private:
   MatrixXf P;
   MatrixXf Pm;
+  MatrixXf Pb;
   MatrixXf Q;
   MatrixXf Buff;
   double R;

@@ -3,7 +3,8 @@ StateSpace:状態方程式による離散系の伝達関数表現
 */
 #include "StateSpace.h"
 
-#define DEBUG 1
+#define DEBUG 0
+#define TEST_SS 0
 
 StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, double deltaT)
 {
@@ -16,6 +17,7 @@ StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, do
 
 #if DEBUG
   cout << "X:rows" << X.rows() << ",cols" << X.cols() << endl;
+  cout << "Y:rows" << Y.rows() << ",cols" << Y.cols() << endl;
   cout << "A:rows" << A.rows() << ",cols"  << A.cols() << endl;
   cout << "B:rows" << B.rows() << ",cols"  << B.cols() << endl;
 #endif
@@ -32,13 +34,16 @@ double StateSpace::next(double input)
   //
   Xn = A*X + B*input;
   X = X + Xn * dt;  //オイラー法
-  Y = X*C;
-  output = Y(0,0);
-
+  Y = C*X;
+  output = Y(0);
+#if DEBUG
+  cout << "Y:rows" << Y.rows() << ",cols" << Y.cols() << endl;
+  cout << "Y:" << Y(0)<< endl;
+#endif
   return output;
 }
 
-#if 0
+#if TEST_SS
 #include<fstream>
 int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム

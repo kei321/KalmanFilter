@@ -23,13 +23,14 @@ public:
   MatrixXf X;
   MatrixXf U;
   MatrixXf Y;
+  double dt;
   StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit,  double deltaT);
   virtual ~StateSpace();
   double next(double input);
 
 private:
   MatrixXf Xn;
-  double dt;
+  // double dt;
 };
 
 #endif
