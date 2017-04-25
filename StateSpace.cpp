@@ -14,6 +14,7 @@ StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, do
   X = Xinit;
   Xn = MatrixXf::Zero(X.rows(),1);
   Y = MatrixXf::Zero(C.rows(),1);
+  switch2NotRealTime =false;
 
 #if DEBUG
   cout << "X:rows" << X.rows() << ",cols" << X.cols() << endl;
@@ -34,6 +35,8 @@ double StateSpace::next(MatrixXf input)
   //
   Xn = A*X + B*input;
   X = X + Xn * dt;  //オイラー法
+  if (switch2NotRealTime)
+    X = Xn;
   Y = C*X;
   output = Y(0);
 #if DEBUG

@@ -27,6 +27,7 @@ public:
   StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit,  double deltaT);
   virtual ~StateSpace();
   double next(MatrixXf input);
+  bool switch2NotRealTime;
 
 private:
   MatrixXf Xn;

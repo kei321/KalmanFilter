@@ -10,7 +10,7 @@
 
 #define TEST_KALMAN 0
 #define DEBUG_KALMAN 0
-#define WINDOWS 1
+#define GNUPLOT_ON 1
 
 KalmanFilter::KalmanFilter(StateSpace *e, MatrixXf P_, MatrixXf Q_, double R_)
 {
@@ -136,8 +136,9 @@ int main(int argc, char const *argv[]) {
     ofs << kf.G(0)<< ',' << kf.G(1)<< ',' ;
     ofs << endl;
   }
+#if GNUPLOT_ON
   plotCSV();
-
+#endif
   return 0;
 }
 #endif

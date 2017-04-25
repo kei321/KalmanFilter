@@ -9,12 +9,14 @@
 #include <random>
 #include <fstream>
 
+#define GNUPLOT_ON 1
+
 int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム
 
   //フィルター用のモデル
   StateSpace *ss;
-  double aa=0.75;
+  double aa=0.85;
   MatrixXf A = MatrixXf::Zero(3,3);
   MatrixXf B = MatrixXf::Zero(3,2);
   MatrixXf C = MatrixXf::Zero(1,3);
@@ -27,18 +29,19 @@ int main(int argc, char const *argv[]) {
         0,    0,  \
         0,    1;
   C <<  1,    1,    -1;
-  X <<  10,    30,    2;
+  X <<  2,    1.5,    2;
   ss = new StateSpace(A,B,C,X,0.1);
+  ss->switch2NotRealTime = true;
 
   MatrixXf P = MatrixXf::Zero(3,3);
   MatrixXf Q = MatrixXf::Zero(2,2);
 
-  P <<  1000,    0,    0,  \
-        0,    1000,    0,  \
-        0,    0,    1000;
-  Q <<  0.001,    0,  \
-        0,        0.001;
-  double R = 0.001;
+  P <<  100000,    0,    0,  \
+        0,    100000,    0,  \
+        0,    0,    100000;
+  Q <<  1000,    0,  \
+        0,        1000;
+  double R = 0.5;
 
   KalmanFilter kf(ss, P, Q, R);
 
@@ -60,7 +63,7 @@ int main(int argc, char const *argv[]) {
   StateSpace ss_t(AA,BB,CC,XX,0.1);
 
   double est,ot,model;
-  double input,obs1,obs2,mu=ss->X(0);
+  double input,obs1,obs2,mu=ss->X(0),beta=ss->X(1);
   double e1,e2;
   int i_max = 200;
   for (size_t i = 0; i < i_max; i++)
@@ -72,21 +75,23 @@ int main(int argc, char const *argv[]) {
     ot = ss_t.next(U);
     obs1 = ot + (-rand()+rand())*0.00008;
     mu = aa*mu + (1-aa)*(-rand()+rand())*0.0002;
-    obs2 = ot + mu;
+    obs2 = ot + mu + beta;
     kf.next(obs2 - obs1, E);
     //
     e1 = kf.eq->X(0) + kf.eq->X(1);
     e2 = kf.eq->X(2);
 
-    est = e1;
+    est = obs1 - e2;
 
-    cout << est  << ". u=" << U(0) << endl;
+    cout << est  << ", u=" << U(0) << ",ot=" << obs2 - obs1 <<  endl;
     ofs << U(0) << ',' ;
-    ofs << est << ',' << obs2 << ',' << ot << ',';
+    ofs << est << ',' << obs1 << ',' << ot << ',' << obs2 << ',' ;
     ofs << kf.G(0)<< ',' << kf.G(1)<< ',' ;
     ofs << endl;
   }
+#if GNUPLOT_ON
   plotCSV();
+#endif
 
   return 0;
 }

@@ -12,6 +12,8 @@ void plotCSV(){
   #endif
   	fprintf(gnuplot, "set datafile separator ','\n");
   	fprintf(gnuplot, "plot 'Test.csv' using 1 w l, 'Test.csv' using 2 w l , 'Test.csv' using 3 w l, 'Test.csv' using 4 w l \n");
+  	fprintf(gnuplot, "plot 'Test.csv' using 1 w l, 'Test.csv' using 2 w l , 'Test.csv' using 3 w l, 'Test.csv' using 4 w l, 'Test.csv' using 5 w l \n");
+  	// fprintf(gnuplot, "plot 'Test.csv' using 1 w l,'Test.csv' using 3 w l, 'Test.csv' using 4 w l \n");
   	// fprintf(gnuplot, "plot '~/Test.csv' using 5 w l, '~/Test.csv' using 6 w l\n");
     fflush(gnuplot);
 
