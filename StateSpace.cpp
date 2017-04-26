@@ -3,7 +3,7 @@ StateSpace:状態方程式による離散系の伝達関数表現
 */
 #include "StateSpace.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #define TEST_SS 0
 
 StateSpace::StateSpace(MatrixXf AA, MatrixXf BB, MatrixXf CC, MatrixXf Xinit, double deltaT)

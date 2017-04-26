@@ -1,6 +1,7 @@
 #include "ARX.h"
 
-#define DEBUG 1
+#define DEBUG 0
+#define ARX_TEST 0
 
 ARX::ARX(int size)
 {
@@ -44,7 +45,7 @@ double ARX::next(double input)
 /*
   test code
 */
-#if 1
+#if ARX_TEST
 #include<fstream>
 int main(int argc, char const *argv[]) {
   ofstream ofs("Test.csv"); //ファイル出力ストリーム
@@ -56,11 +57,11 @@ int main(int argc, char const *argv[]) {
   arx.B=b;
 
   double o,input;
-  int i_max = 100;
+  int i_max = 500;
   for (size_t i = 0; i < i_max; i++)
   {
 
-    input = i < i_max/2 ? 50 : 0;
+    input = i < i_max/2 ? 1 : 0;
     o = arx.next(input);
     cout << "i=" << i << ": ";
     cout << "output= " << o << endl;
